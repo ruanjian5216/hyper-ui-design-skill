@@ -1,4 +1,4 @@
-/** 文件职责：四类控件的固定玻璃绘制，不读取主题材质档位，不修改测量与命中范围。 */
+/** 文件职责：按控件角色复用固定玻璃绘制，不修改测量、命中范围与业务状态。 */
 package hyper_ui
 
 import androidx.compose.foundation.BorderStroke
@@ -22,7 +22,10 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import kotlin.math.ceil
 
-internal enum class HyperControlSurfaceRole { Navigation, Button, Selection, Thumb, SwitchThumb, Dialog }
+internal enum class HyperControlSurfaceRole {
+    Navigation, Button, Selection, Thumb, SwitchThumb, Dialog,
+    Compact, Field, Track, Panel, Drawer
+}
 
 internal fun Modifier.hyperControlSurface(
     shape: Shape,
@@ -44,7 +47,8 @@ internal fun Modifier.hyperControlSurface(
     var coordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
     DisposableEffect(shader) { onDispose { shader.close() } }
     val interactive = role == HyperControlSurfaceRole.Selection || role == HyperControlSurfaceRole.Thumb || role == HyperControlSurfaceRole.SwitchThumb
-    val shadowRadius = when (role) {
+    val fixedStyle = HyperGlassStyles.fixed(role)
+    val shadowRadius = fixedStyle?.shadow ?: when (role) {
         HyperControlSurfaceRole.Navigation -> HyperGlassStyles.Navigation.shadow
         HyperControlSurfaceRole.Dialog -> 16.dp
         HyperControlSurfaceRole.Thumb, HyperControlSurfaceRole.SwitchThumb -> 4.dp
@@ -54,6 +58,7 @@ internal fun Modifier.hyperControlSurface(
     this.onGloballyPositioned { coordinates = it }.dropShadow(shape) {
         radius = shadowRadius.toPx()
         color = black.copy(alpha = if (light) 0.08f else 0.18f)
+        if (role == HyperControlSurfaceRole.SwitchThumb) offset = Offset(0f, (4.dp/6f).toPx())
         alpha = if (role == HyperControlSurfaceRole.Selection) progress().coerceIn(0f, 1f) else 1f
     }.clip(shape).drawWithContent {
         if (size.width <= 0f || size.height <= 0f) return@drawWithContent
@@ -67,30 +72,33 @@ internal fun Modifier.hyperControlSurface(
             HyperControlSurfaceRole.Selection -> 0f
             HyperControlSurfaceRole.Thumb, HyperControlSurfaceRole.SwitchThumb -> 8.dp.toPx() * (1f-pressed)
             HyperControlSurfaceRole.Dialog -> (if (light) 16.dp else 8.dp).toPx()
+            else -> (if (role == HyperControlSurfaceRole.Drawer && !light) 8.dp else fixedStyle!!.blur).toPx()
         }
         val edge = when (role) {
             HyperControlSurfaceRole.Navigation, HyperControlSurfaceRole.Button -> controlStyle.edge
             HyperControlSurfaceRole.Dialog -> 24.dp
             HyperControlSurfaceRole.SwitchThumb -> 5.dp
-            else -> 10.dp
+            else -> fixedStyle?.edge ?: 10.dp
         }.toPx()*strength
         val amount = when (role) {
             HyperControlSurfaceRole.Navigation, HyperControlSurfaceRole.Button -> controlStyle.amount
             HyperControlSurfaceRole.Dialog -> 48.dp
             HyperControlSurfaceRole.SwitchThumb -> 10.dp
-            else -> 14.dp
+            else -> fixedStyle?.amount ?: 14.dp
         }.toPx()*strength
         if (shader.supported && actual?.isAttached == true && backgroundSources.isNotEmpty()) {
-            val padding = ceil(blur*3f+edge)
+            // 参考 Toggle 的首个 Clamp blur 不扩展采样画布，其他控件沿用原范围。
+            val padding = if (role == HyperControlSurfaceRole.SwitchThumb) 0f else ceil(blur*3f+edge)
             val radii = if (outline is Outline.Rounded) with(outline.roundRect) {
                 listOf(topLeftCornerRadius.x,topRightCornerRadius.x,bottomRightCornerRadius.x,bottomLeftCornerRadius.x)
             } else List(4) { 0f }
             layer.renderEffect = shader.effect(HyperGlassOptics(size.width,size.height,padding,radii,
-                if (outline is Outline.Generic) 0f else edge,amount,if (interactive) pressed else 0f,
+                if (outline is Outline.Generic) 0f else edge,amount,
+                if (role == HyperControlSurfaceRole.SwitchThumb && pressed > 0f) 1f else if (interactive) pressed else 0f,
                 if (role == HyperControlSurfaceRole.Dialog) 1f else 0f,blur,
                 if (role == HyperControlSurfaceRole.Dialog) 1.5f else 1f,
                 if (role == HyperControlSurfaceRole.Dialog && light) 0.2f else 0f,
-                if (role == HyperControlSurfaceRole.Button) controlStyle.highlight * 2f else strength,0.5.dp.toPx()))
+                if (role == HyperControlSurfaceRole.SwitchThumb) 0f else if (role == HyperControlSurfaceRole.Button) controlStyle.highlight * 2f else fixedStyle?.highlight?.times(2f) ?: strength,0.5.dp.toPx()))
             layer.record(size = IntSize(ceil(size.width+padding*2).toInt(),ceil(size.height+padding*2).toInt())) {
                 drawRect(background)
                 backgroundSources.forEach { source ->
@@ -117,24 +125,32 @@ internal fun Modifier.hyperControlSurface(
                 drawRect(if (light) black else white,alpha = 0.1f*(1f-pressed))
                 drawRect(black,alpha = 0.03f*pressed)
             }
-            HyperControlSurfaceRole.Thumb, HyperControlSurfaceRole.SwitchThumb ->
+            HyperControlSurfaceRole.SwitchThumb ->
+                drawRect(if (containerColor != Color.Unspecified) containerColor else white,alpha = 0.92f - 0.72f*pressed)
+            HyperControlSurfaceRole.Thumb ->
                 drawRect(if (containerColor != Color.Unspecified) containerColor else white,alpha = 1f-pressed)
             HyperControlSurfaceRole.Dialog -> drawRect(if (containerColor != Color.Unspecified) containerColor else tint,
                 alpha = if (containerColor != Color.Unspecified) 1f else if (light) 0.6f else 0.8f)
+            else -> drawRect(if (containerColor != Color.Unspecified) containerColor else tint.copy(
+                alpha = if (role == HyperControlSurfaceRole.Drawer) { if (light) 0.85f else 0.28f }
+                else if (role == HyperControlSurfaceRole.Panel) { if (light) 0.6f else 0.272f }
+                else tint.alpha * 0.4f))
         }
         drawContent()
-        val intensity = if (role == HyperControlSurfaceRole.Button) {
+        val intensity = if (role == HyperControlSurfaceRole.SwitchThumb) 0f else if (role == HyperControlSurfaceRole.Button) {
             if (border == null) controlStyle.highlight else 0f
-        } else if (interactive) pressed else HyperGlassStyles.Navigation.highlight
+        } else if (interactive) pressed else if (border != null && fixedStyle != null) 0f else fixedStyle?.highlight ?: HyperGlassStyles.Navigation.highlight
         if (intensity > 0f) drawOutline(outline,Brush.linearGradient(listOf(
             white.copy(alpha = 0.6f*intensity),white.copy(alpha = 0.04f*intensity),white.copy(alpha = 0.5f*intensity)),
             Offset.Zero,Offset(size.width,size.height)),style = Stroke(0.5.dp.toPx()))
     }.then(if (interactive) Modifier.innerShadow(shape) {
         val pressed = progress().coerceIn(0f,1f)
         radius = (if (role == HyperControlSurfaceRole.Selection) 8.dp else 4.dp).toPx()*pressed
-        color = black.copy(alpha = 0.12f)
+        color = black.copy(alpha = if (role == HyperControlSurfaceRole.SwitchThumb) 0.15f else 0.12f)
+        if (role == HyperControlSurfaceRole.SwitchThumb) offset = Offset(0f, (4.dp*pressed).toPx())
         alpha = pressed
-    } else Modifier).then(if (border != null) Modifier.border(border,shape) else Modifier)
+    } else Modifier).then(if (role == HyperControlSurfaceRole.SwitchThumb) Modifier.hyperSwitchHighlight(shape,progress) else Modifier)
+        .then(if (border != null) Modifier.border(border,shape) else Modifier)
 }
 
 @Composable

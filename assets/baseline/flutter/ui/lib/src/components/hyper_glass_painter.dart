@@ -22,6 +22,7 @@ class HyperGlassPainter extends CustomPainter {
     this.tint,
     this.scaleSource,
     this.sourceScale = const Offset(1, 1),
+    this.compactSampling = false,
   }) : super(repaint: Listenable.merge(sources));
   final List<HyperGlassSourceController> sources;
   final GlobalKey targetKey;
@@ -39,6 +40,7 @@ class HyperGlassPainter extends CustomPainter {
   final HyperGlassSourceController? tintSource, scaleSource;
   final Color? tint;
   final Offset sourceScale;
+  final bool compactSampling;
   ui.Image? _sample;
   void disposeSample() {
     _sample?.dispose();
@@ -49,7 +51,7 @@ class HyperGlassPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final target = targetKey.currentContext?.findRenderObject();
     if (target is! RenderBox || !target.attached || size.isEmpty) return;
-    final padding = (blur * 3 + edge).ceilToDouble();
+    final padding = compactSampling ? 0.0 : (blur * 3 + edge).ceilToDouble();
     final extent = Size(size.width + padding * 2, size.height + padding * 2);
     final recording = ui.PictureRecorder();
     final sampleCanvas = Canvas(recording);
@@ -115,6 +117,7 @@ class HyperGlassPainter extends CustomPainter {
         brightness,
         highlight,
         0.5,
+        0.0,
       ];
       for (var index = 0; index < values.length; index++) {
         shader!.setFloat(index, values[index]);

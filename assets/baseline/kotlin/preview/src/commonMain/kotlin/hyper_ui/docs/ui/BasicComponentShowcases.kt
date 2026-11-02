@@ -33,7 +33,7 @@ import hyper_ui.*
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ButtonDemo() {
-    // 两端沿用 Kotlin 示例分组和 8/16dp 间距，默认按钮切换处理中状态以核对回调与加载拦截。
+    // 保留中英文、图文和加载态供核对中心线；两端分组与 8/16dp 间距保持一致。
     var processing by remember { mutableStateOf(true) }
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {

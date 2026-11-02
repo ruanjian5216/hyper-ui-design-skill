@@ -1,17 +1,17 @@
+import 'dart:async';
 import 'package:flutter/widgets.dart';
-
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-
 import '../theme/hyper_ui_theme_tokens.dart';
 import '../theme/hyper_ui_theme.dart';
+import '../theme/hyper_ui_effects.dart';
+import '../utils/hyper_overlay_motion.dart';
 import 'hyper_button.dart';
-import 'hyper_glass.dart';
 import 'hyper_control_surface.dart';
 import 'hyper_modal.dart';
 import 'hyper_pressable.dart';
 import 'hyper_tone.dart';
 
-/// 无全局状态的玻璃轻提示。
+/// 无全局状态的玻璃轻提示；退出完成后移除 OverlayEntry。
 abstract final class HyperToast {
   static void show(
     BuildContext context,
@@ -22,16 +22,7 @@ abstract final class HyperToast {
     String? actionLabel,
     VoidCallback? onAction,
   }) {
-    assert(
-      type == 'neutral' ||
-          type == 'primary' ||
-          type == 'success' ||
-          type == 'warning' ||
-          type == 'error' ||
-          type == 'info',
-      'HyperToast.type must be neutral, primary, success, warning, error, or info.',
-    );
-    final tokens = HyperUiThemeTokens.of(context);
+    if (duration.isNegative) throw ArgumentError.value(duration, 'duration');
     final tone = switch (type) {
       'primary' => HyperUiTone.primary,
       'success' => HyperUiTone.success,
@@ -41,17 +32,9 @@ abstract final class HyperToast {
       'neutral' => HyperUiTone.neutral,
       _ => throw ArgumentError.value(type, 'type', 'Invalid toast type'),
     };
-    final toneColor = color ?? tone.color(tokens);
     final theme = HyperUiTheme.of(context);
+    final toneColor = color ?? tone.color(theme.tokens);
     late final OverlayEntry entry;
-    var visible = true;
-    void hide() {
-      if (!visible) return;
-      visible = false;
-      entry.remove();
-      entry.dispose();
-    }
-
     entry = OverlayEntry(
       builder: (_) => HyperUiTheme(
         data: theme,
@@ -61,84 +44,171 @@ abstract final class HyperToast {
           bottom: 96,
           child: Align(
             alignment: Alignment.center,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: 180, maxWidth: 420),
-              child: HyperGlass(
-                radius: 18,
-                type: 'prominent',
-                color: Color.alphaBlend(
-                  toneColor.withAlpha(10),
-                  theme.surfaces.surfaceStrong,
-                ),
-                borderColor: toneColor.withAlpha(105),
-                padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Container(
-                      width: 30,
-                      height: 30,
-                      decoration: BoxDecoration(
-                        color: toneColor.withAlpha(24),
-                        shape: BoxShape.circle,
-                      ),
-                      alignment: Alignment.center,
-                      child: Icon(_iconFor(tone), color: toneColor, size: 17),
-                    ),
-                    const SizedBox(width: 10),
-                    Flexible(
-                      child: Text(
-                        message,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: tokens.foreground,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          height: 1.35,
-                        ),
-                      ),
-                    ),
-                    if (actionLabel != null && onAction != null)
-                      HyperPressable(
-                        onPressed: () {
-                          hide();
-                          onAction();
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 6,
-                          ),
-                          child: Text(
-                            actionLabel,
-                            style: TextStyle(
-                              color: toneColor,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
+            child: _HyperToastOverlay(
+              message: message,
+              tone: tone,
+              color: toneColor,
+              duration: duration,
+              actionLabel: actionLabel,
+              onAction: onAction,
+              onRemoved: () {
+                entry.remove();
+                entry.dispose();
+              },
             ),
           ),
         ),
       ),
     );
     Overlay.of(context, rootOverlay: true).insert(entry);
-    Future<void>.delayed(duration, hide);
+  }
+}
+
+class _HyperToastOverlay extends StatefulWidget {
+  const _HyperToastOverlay({
+    required this.message,
+    required this.tone,
+    required this.color,
+    required this.duration,
+    required this.onRemoved,
+    this.actionLabel,
+    this.onAction,
+  });
+  final String message;
+  final HyperUiTone tone;
+  final Color color;
+  final Duration duration;
+  final VoidCallback onRemoved;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+  @override
+  State<_HyperToastOverlay> createState() => _HyperToastOverlayState();
+}
+
+class _HyperToastOverlayState extends State<_HyperToastOverlay>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _motion = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 125),
+  );
+  Timer? _timer;
+  bool _closing = false;
+  @override
+  void initState() {
+    super.initState();
+    if (widget.duration > Duration.zero) _timer = Timer(widget.duration, _hide);
   }
 
-  static IconData _iconFor(HyperUiTone tone) => switch (tone) {
-    HyperUiTone.primary => LucideIcons.sparkles,
-    HyperUiTone.success => LucideIcons.check,
-    HyperUiTone.warning => LucideIcons.circleAlert,
-    HyperUiTone.error => LucideIcons.x,
-    HyperUiTone.info => LucideIcons.info,
-    HyperUiTone.neutral => LucideIcons.bell,
-  };
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _motion.duration = MediaQuery.disableAnimationsOf(context)
+        ? Duration.zero
+        : const Duration(milliseconds: 125);
+    if (!_closing) _motion.forward();
+  }
+
+  void _hide() {
+    if (_closing || !mounted) return;
+    setState(() => _closing = true);
+    _timer?.cancel();
+    _motion.reverse().then((_) {
+      if (mounted) widget.onRemoved();
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _motion.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = HyperUiThemeTokens.of(context);
+    final light = HyperUiTheme.of(context).brightness == Brightness.light;
+    final icon = switch (widget.tone) {
+      HyperUiTone.primary => LucideIcons.sparkles,
+      HyperUiTone.success => LucideIcons.check,
+      HyperUiTone.warning => LucideIcons.circleAlert,
+      HyperUiTone.error => LucideIcons.x,
+      HyperUiTone.info => LucideIcons.info,
+      HyperUiTone.neutral => LucideIcons.bell,
+    };
+    return IgnorePointer(
+      ignoring: _closing,
+      child: buildHySurfaceTransition(
+        animation: _motion,
+        beginScale: 0.97,
+        curve: HyperUiEffects.overlayCurve,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 180, maxWidth: 420),
+          child: HyperControlSurface(
+            radius: 18,
+            role: HyperControlSurfaceRole.panel,
+            color: Color.alphaBlend(
+              widget.color.withAlpha(10),
+              Color.fromRGBO(255, 255, 255, light ? 0.6 : 0.272),
+            ),
+            border: Border.all(color: widget.color.withAlpha(105)),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 30,
+                    height: 30,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: widget.color.withAlpha(24),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(icon, color: widget.color, size: 17),
+                  ),
+                  const SizedBox(width: 10),
+                  Flexible(
+                    child: Text(
+                      widget.message,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: tokens.foreground,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        height: 1.35,
+                      ),
+                    ),
+                  ),
+                  if (widget.actionLabel != null && widget.onAction != null)
+                    HyperPressable(
+                      onPressed: () {
+                        _hide();
+                        widget.onAction!();
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 6,
+                        ),
+                        child: Text(
+                          widget.actionLabel!,
+                          style: TextStyle(
+                            color: widget.color,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 abstract final class HyperDialog {

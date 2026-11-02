@@ -20,6 +20,7 @@ internal fun createHyperGlassShader(): HyperGlassShader = when {
 
 @RequiresApi(31)
 private open class AndroidBlurShader : HyperGlassShader {
+    override val supportsAmbient: Boolean get() = false
     private var previous: HyperGlassOptics? = null
     private var cached: RenderEffect? = null
     protected open fun lens(optics: HyperGlassOptics): NativeEffect? = null
@@ -35,6 +36,7 @@ private open class AndroidBlurShader : HyperGlassShader {
 
 @RequiresApi(33)
 private class AndroidRefractiveShader : AndroidBlurShader() {
+    override val supportsAmbient: Boolean get() = true
     private val shader = RuntimeShader(HyperGlassShaderCode)
     override fun lens(optics: HyperGlassOptics): NativeEffect {
         shader.setFloatUniform("size", optics.width, optics.height)
@@ -48,6 +50,7 @@ private class AndroidRefractiveShader : AndroidBlurShader() {
         shader.setFloatUniform("brightness", optics.brightness)
         shader.setFloatUniform("highlight", optics.highlight)
         shader.setFloatUniform("stroke", optics.stroke)
+        shader.setFloatUniform("ambient", optics.ambient)
         return NativeEffect.createRuntimeShaderEffect(shader, "content")
     }
 }

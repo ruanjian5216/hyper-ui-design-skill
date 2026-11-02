@@ -12,6 +12,11 @@ class HyperGlassStyle {
   );
   final double blur, edge, amount, shadow, highlight;
 
+  static const compact = HyperGlassStyle(2, 3, 4, 1, 0.35);
+  static const field = HyperGlassStyle(8, 8, 12, 0, 0.5);
+  static const track = HyperGlassStyle(2, 2, 3, 0, 0.25);
+  static const panel = HyperGlassStyle(8, 12, 18, 8, 0.5);
+  static const drawer = HyperGlassStyle(16, 0, 0, 0, 0);
   static const navigation = HyperGlassStyle(8, 24, 24, 8, 0.5);
 
   static HyperGlassStyle button(double progress) => HyperGlassStyle(

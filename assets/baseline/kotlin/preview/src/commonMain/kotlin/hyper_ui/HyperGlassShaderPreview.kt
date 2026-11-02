@@ -29,6 +29,7 @@ private class PreviewGlassShader : HyperGlassShader {
         builder.uniform("brightness", optics.brightness)
         builder.uniform("highlight", optics.highlight)
         builder.uniform("stroke", optics.stroke)
+        builder.uniform("ambient", optics.ambient)
         val lens = ImageFilter.makeRuntimeShader(builder, "content", null)
         val combined = if (optics.blur > 0f) {
             val blur = ImageFilter.makeBlur(optics.blur, optics.blur, FilterTileMode.CLAMP)

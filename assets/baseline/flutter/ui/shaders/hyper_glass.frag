@@ -11,6 +11,7 @@ uniform float saturation;
 uniform float brightness;
 uniform float highlight;
 uniform float stroke;
+uniform float ambient;
 uniform sampler2D content;
 out vec4 fragColor;
 vec2 safeNormal(vec2 v) { return v / max(length(v), 0.0001); }
@@ -34,6 +35,12 @@ void main() {
   vec2 q = abs(p)-h+r;
   float sd = length(max(q,0.0))+min(max(q.x,q.y),0.0)-r;
   vec2 n = gradRect(p,h,min(r*1.5,min(h.x,h.y)));
+  if (ambient > 0.0) {
+    float d = dot(n,vec2(0.70710678));
+    float t = step(0.0,d);
+    fragColor = vec4(t,t,t,1.0)*abs(d)*sampleGlass(uv).a;
+    return;
+  }
   vec2 shift = vec2(0.0);
   if (edge > 0.0 && amount > 0.0 && -sd < edge) {
     float f = clamp(1.0+min(sd,0.0)/edge,0.0,1.0);

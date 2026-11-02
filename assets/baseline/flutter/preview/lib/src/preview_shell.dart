@@ -82,7 +82,7 @@ class _PreviewContent extends StatelessWidget {
       padding: const EdgeInsets.all(HyperUiSpacing.pagePadding),
       child: content,
     );
-    final glassScene = item.id.startsWith('component-tab-bar') || const {'buttons','component-button','component-slider','component-switch','component-dialog'}.contains(item.id);
+    final glassScene = item.id.startsWith('component-tab-bar') || const {'buttons','component-button','component-slider','component-switch','component-dialog','component-checkbox','component-radio','component-date-picker','component-tabs','component-drawer','component-dropdown','component-toast','component-progress','component-update-dialog'}.contains(item.id);
     return glassScene ? PreviewGlassBackground(child:viewport) : viewport;
   }
 }

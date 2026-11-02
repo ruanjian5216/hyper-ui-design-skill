@@ -10,7 +10,7 @@
 | Button | engine、interaction、button、theme |
 | TabBar | engine、interaction、tabbar、theme |
 | Slider | engine、interaction、slider（Kotlin）或 selection（Flutter）、theme |
-| Switch | engine、interaction、selection、theme |
+| Switch | engine、interaction、switch、theme；并读 switch-effects.md |
 | Dialog | engine、interaction、dialog、theme；动作按钮还需 button |
 | 文档效果对照 | 上述目标组以及 preview 中对应背景、宿主和示例 |
 
@@ -20,7 +20,7 @@
 
 绘制顺序为外阴影 → 按实际 shape 裁切 → 采样背景的模糊和折射 → 角色底色 → 清晰的文字/图标 → 轮廓高光/显式边框；交互镜片另有现有内阴影。Button 无交互镜片的内阴影。Flutter 自定义边框在子树的 foreground decoration 绘制，默认轮廓由外部 foreground painter 绘制；显式边框存在时关闭 Button 默认轮廓，不叠加两套描边。
 
-采样边界 padding = ceil(blur × 3 + edge)。Kotlin 光学参数以 dp 转为 px；Flutter 在逻辑单位构图，以固定 ratio 2 生成镜片采样图，背景录制 DPR 限于 [1,2]。保留两端各自链路，不擅自统一采样倍率。
+除 Switch 外，采样边界 padding = ceil(blur × 3 + edge)。Switch 的首个 Clamp blur 保留 padding=0，见 switch-effects.md。Kotlin 光学参数以 dp 转为 px；Flutter 在逻辑单位构图，以固定 ratio 2 生成镜片采样图，背景录制 DPR 限于 [1,2]。保留两端各自链路，不擅自统一采样倍率。
 
 圆角距离场、法线、圆弧折射、七波段色散、亮度和饱和度运算逐字复用 HyperGlassOptics.kt 的 shader / hyper_glass.frag。Flutter uniform 顺序与 painter 赋值必须相同。不得用渐变、普通 backdrop-filter 或只设 blur 替换该算法。
 
@@ -49,7 +49,7 @@ p 为当前动画进度，截断到 [0,1]。两端均按以下连续函数驱动
 
 默认轮廓沿真实外缘绘制，宽 0.5dp，裁切外半边，左上到右下三段白色 alpha=[0.6H,0.04H,0.5H]，stops=[0,0.5,1]。语义配色的默认非 filled 线框用基色 alpha=0.35、宽0.5dp，替代默认外轮廓。保留 shader 本身的高光；不要因为外边框存在关闭内部折射高光。
 
-按钮高38dp，文字按钮最小宽68dp，radius19dp；基础水平 padding14dp。Kotlin 另保留原布局额外1dp内容 padding，不能在移植时悄悄删掉。文字13sp、行高1.2、w600、字距0.05，文字按钮图标17dp、纯图标20dp、内容间距8dp。expanded 由宿主占满现有可用宽，不改变默认尺寸。
+按钮高38dp，文字按钮最小宽68dp，radius19dp；基础水平 padding14dp。Kotlin 另保留原布局额外1dp内容 padding，不能在移植时悄悄删掉。文字13sp、行高1.2、w600、字距0.05；Kotlin 采用 LineHeightStyle.Alignment.Proportional / Trim.None 保留完整单行行框居中。文字按钮图标17dp、纯图标20dp、内容间距8dp。expanded 由宿主占满现有可用宽，不改变默认尺寸。
 
 禁用 = enabled=false 或 onPressed=null：使用原 controlTrack、弱化前景、1dp 弱边框；无采样、阴影和按压。loading 仍显示正常玻璃和原进度图标，阻止点击；文字/图标的显示分支及状态归属沿用组件源码。
 
@@ -64,17 +64,17 @@ Kotlin 的 hyperNoRippleClickable 在 Initial pass 观察 down，clickable/combi
 | Navigation | 8 | 24 | 24 | shadow8，轮廓强度0.5；默认白底alpha浅0.4/深0.136 |
 | Selection | 0 | 10p | 14p | dispersion=p；shadow8且alpha乘p；静止选中底浅黑/深白0.1(1−p)，额外黑0.03p |
 | Thumb | 8(1−p) | 10p | 14p | dispersion=p；shadow4；底色alpha乘(1−p) |
-| SwitchThumb | 8(1−p) | 5p | 10p | dispersion=p；shadow4；底色alpha乘(1−p) |
+| SwitchThumb | 8(1−p) | 5p | 10p | 折射启用时dispersion=1；shadow4/alpha浅0.08深0.18/offsetY4/6；底色alpha乘(0.92−0.72p)，独立Ambient |
 | Dialog | 浅16/深8 | 24 | 48 | shadow16，depth1，saturation1.5，浅色brightness0.2，默认白底alpha浅0.6/深0.272 |
 
-Selection/Thumb/SwitchThumb 的内阴影与边缘绘制按各端源码保留。Button 与 Navigation 有相同外缘绘制规则，但其他角色在 Flutter 使用内缩0.5、宽0.75的原规则；不要为了“对齐”统一描边。
+Selection/Thumb 的内阴影与边缘绘制按各端源码保留。Button 与 Navigation 有相同外缘绘制规则；Selection/Thumb 在 Flutter 使用内缩0.5、宽0.75的规则。SwitchThumb 使用专用 Ambient 与偏移内阴影，完整规则见 switch-effects.md，不套用任意其他角色的轮廓。
 
 ### 专用动效与布局
 
 - TabBar：multiple 默认内容高56、镜片默认高48；single固定直径48。组内最多5项，组外最多1个独立动作，分开计数。并排垂直居中；不把外部消息入口移进组内，也不减少镜片高度或扩大独立按钮。
 - TabBar 的 position/press 弹簧 stiffness1000、dampingRatio1、threshold0.001。active = pressed 或 abs(position−target) > (count−1)×0.025，接近目标后才释放镜片。scaleX/scaleY 的 active目标为78/56，分别采用 dampingRatio0.6/0.7、stiffness250。速度形变、panelOffset、按下即高光和释放拖动回正原式均见两端 TabBarMotion；不能以普通260ms平移替代。绘制层舒展及±4dp整栏位移不改变测量和命中，贴底分支不做整栏变换。
 - Slider：点击/外部值定位与按压用临界阻尼1/1000，拖动值跟手，保留原回调时机；20dp滑块不放大。背景和轨道的来源叠加顺序、禁用分支从组件读取。
-- Switch：保留原开关尺寸、轨道、滑块位置和 spring 进度；读取 HyperSelectionControls.kt / hyper_selection_controls.dart 的完整分支。不得套用 TabBar 的78/56缩放或 Button 的缩放。
+- Switch：保留52×32/22，轨道复用Button角色的主题色/中性玻璃，滑块使用保留底面的轻透白色与柔和阴影；完整保留1.5双轴扩张、VelocityTracker速度形变、0.025接近阈值释放、按住连续拖动/0.5松手吸附及独立Ambient。源码已拆为HyperSwitch / HyperSwitchMotion / HyperSwitchGestures与Flutter对应模块；完整参数、绘制顺序和宿主生命周期边界见[switch-effects.md](switch-effects.md)。不套用TabBar或Button的整体缩放。
 - Dialog：保留250ms现有遮罩与显隐、面板宽高约束、Insets/IME、点击外部关闭和退出生命周期。不能把视觉容器替换成一个没有原生窗口/路由约束的通用缩放盒子。
 
 Flutter SpringSimulation 以mass=1、damping=2×dampingRatio×sqrt(stiffness)映射，不直接将0.6等阻尼比填入damping。完整阈值、状态与速度连续性以快照为准。

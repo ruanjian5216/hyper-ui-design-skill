@@ -7,11 +7,12 @@ internal data class HyperGlassOptics(
     val width: Float, val height: Float, val padding: Float, val radii: List<Float>,
     val edge: Float, val amount: Float, val dispersion: Float, val depth: Float,
     val blur: Float, val saturation: Float, val brightness: Float,
-    val highlight: Float, val stroke: Float
+    val highlight: Float, val stroke: Float, val ambient: Float = 0f
 )
 
 internal interface HyperGlassShader {
     val supported: Boolean get() = true
+    val supportsAmbient: Boolean get() = supported
     fun effect(optics: HyperGlassOptics): RenderEffect?
     fun close() {}
 }
@@ -29,6 +30,7 @@ uniform float saturation;
 uniform float brightness;
 uniform float highlight;
 uniform float stroke;
+uniform float ambient;
 
 float2 safeNormal(float2 v) { return v / max(length(v), 0.0001); }
 float2 gradRect(float2 p, float2 h, float r) {
@@ -50,6 +52,11 @@ half4 main(float2 uv) {
     float2 q = abs(p)-h+r;
     float sd = length(max(q,0.0))+min(max(q.x,q.y),0.0)-r;
     float2 n = gradRect(p,h,min(r*1.5,min(h.x,h.y)));
+    if (ambient > 0.0) {
+        float d = dot(n,float2(0.70710678));
+        float t = step(0.0,d);
+        return half4(t,t,t,1.0)*abs(d)*content.eval(uv).a;
+    }
     float2 shift = float2(0.0);
     if (edge > 0.0 && amount > 0.0 && -sd < edge) {
         float f = clamp(1.0+min(sd,0.0)/edge,0.0,1.0);

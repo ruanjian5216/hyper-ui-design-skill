@@ -24,6 +24,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -129,6 +130,11 @@ object HyperButtonDefaults {
     fun textStyle(): TextStyle = HyperTheme.typography.labelLarge.copy(
         fontSize = 13.sp, lineHeight = 15.6.sp,
         fontWeight = FontWeight.SemiBold, letterSpacing = 0.05.sp,
+        // 单行保留声明的行框，避免裁掉首尾行距后按字体固有度量居中而使字形偏下。
+        lineHeightStyle = LineHeightStyle(
+            alignment = LineHeightStyle.Alignment.Proportional,
+            trim = LineHeightStyle.Trim.None
+        ),
     )
 
     @Composable

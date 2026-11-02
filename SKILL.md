@@ -10,7 +10,7 @@ description: 使用技能包内的独立源码基线，在 Kotlin/Compose 或 Fl
 ## 开始工作
 
 1. 根据用户任务确定目标目录与技术栈；目标项目有 AGENTS.md、组件文档或示例时阅读对应约束。此技能不预设仓库名称或目录，只处理用户指定的组件。
-2. 阅读 [当前效果与精确参数](references/effect-contract.md)。按组件读取 manifest 中对应的表面、交互、组件源码；核对预览时再读 preview 分组。assets/baseline/kotlin 和 assets/baseline/flutter 内的目录仅用于组织参考材料，不是目标项目必须采用的结构。
+2. 阅读 [当前效果与精确参数](references/effect-contract.md)。处理 Switch 时必须同时阅读 [Switch 完整液态交互基线](references/switch-effects.md)，核对五条动画通道、手势、取样、Ambient 与阴影，不能只实现共用材质。按组件读取 manifest 中对应源码；核对预览时再读 preview 分组。assets/baseline/kotlin 和 assets/baseline/flutter 内的目录仅用于组织参考材料，不是目标项目必须采用的结构。
 3. 使用 Python 3.9+ 运行技能内 `scripts/verify_baseline.py` 核对包内资源。脚本仅使用 Python 标准库，可从任意工作目录通过脚本路径运行；不需要安装原 UI 库、原构建工具或启动服务。只有对照采用相同参考目录布局的目标时，才选用 `--platform kotlin|flutter --root <用户指定的目标目录>`；其他目标按代码职责逐段核对，不要求目标有同名路径。
 4. 从包内基线移植指定组件的表面、着色器和交互链路，适配目标包名、导入、主题、图标及宿主，不凭参数表重写算法。参考源码集不是可直接安装的完整 UI 库；未随包提供的通用宿主能力使用目标项目或框架标准能力适配，不要求用户提供原项目。build 分组只说明依赖版本和资源注册方式，不把整份参考构建配置覆盖到目标工程。
 

@@ -4,6 +4,7 @@ import '../theme/hyper_ui_theme.dart';
 import 'hyper_glass_source.dart';
 import 'hyper_glass_painter.dart';
 import 'hyper_glass_style.dart';
+import 'hyper_switch_edge_painter.dart';
 
 /// 固定组件玻璃，不提供全局材质档位；绘制与子组件布局独立。
 enum HyperControlSurfaceRole {
@@ -13,6 +14,11 @@ enum HyperControlSurfaceRole {
   thumb,
   switchThumb,
   dialog,
+  compact,
+  field,
+  track,
+  panel,
+  drawer,
 }
 
 class HyperControlSurface extends StatefulWidget {
@@ -45,7 +51,9 @@ class HyperControlSurface extends StatefulWidget {
 class _HyperControlSurfaceState extends State<HyperControlSurface> {
   final _paintKey = GlobalKey();
   ui.FragmentShader? _shader;
+  ui.FragmentShader? _ambientShader;
   HyperGlassPainter? _painter;
+  HyperSwitchEdgePainter? _switchEdgePainter;
   @override
   void initState() {
     super.initState();
@@ -57,7 +65,11 @@ class _HyperControlSurfaceState extends State<HyperControlSurface> {
       final program = await ui.FragmentProgram.fromAsset(
         'packages/flutter_hyper_ui/shaders/hyper_glass.frag',
       );
-      if (mounted) setState(() => _shader = program.fragmentShader());
+      if (mounted)
+        setState(() {
+          _shader = program.fragmentShader();
+          _ambientShader = program.fragmentShader();
+        });
     } catch (_) {
       /* 着色器加载失败时保留采样和表面，不阻断控件交互。 */
     }
@@ -66,7 +78,9 @@ class _HyperControlSurfaceState extends State<HyperControlSurface> {
   @override
   void dispose() {
     _painter?.disposeSample();
+    _switchEdgePainter?.disposeMask();
     _shader?.dispose();
+    _ambientShader?.dispose();
     super.dispose();
   }
 
@@ -81,6 +95,14 @@ class _HyperControlSurfaceState extends State<HyperControlSurface> {
         role == HyperControlSurfaceRole.thumb ||
         role == HyperControlSurfaceRole.switchThumb;
     final strength = interactive ? pressed : 1.0;
+    final fixedStyle = switch (role) {
+      HyperControlSurfaceRole.compact => HyperGlassStyle.compact,
+      HyperControlSurfaceRole.field => HyperGlassStyle.field,
+      HyperControlSurfaceRole.track => HyperGlassStyle.track,
+      HyperControlSurfaceRole.panel => HyperGlassStyle.panel,
+      HyperControlSurfaceRole.drawer => HyperGlassStyle.drawer,
+      _ => null,
+    };
     final controlStyle = role == HyperControlSurfaceRole.button
         ? HyperGlassStyle.button(pressed)
         : HyperGlassStyle.navigation;
@@ -94,20 +116,24 @@ class _HyperControlSurfaceState extends State<HyperControlSurface> {
       HyperControlSurfaceRole.thumb ||
       HyperControlSurfaceRole.switchThumb => 8 * (1 - pressed),
       HyperControlSurfaceRole.dialog => light ? 16.0 : 8.0,
+      _ =>
+        role == HyperControlSurfaceRole.drawer && !light
+            ? 8.0
+            : fixedStyle!.blur,
     };
     final edge = switch (role) {
       HyperControlSurfaceRole.navigation ||
       HyperControlSurfaceRole.button => controlStyle.edge,
       HyperControlSurfaceRole.dialog => 24.0 * strength,
       HyperControlSurfaceRole.switchThumb => 5.0 * strength,
-      _ => 10.0 * strength,
+      _ => (fixedStyle?.edge ?? 10.0) * strength,
     };
     final amount = switch (role) {
       HyperControlSurfaceRole.navigation ||
       HyperControlSurfaceRole.button => controlStyle.amount,
       HyperControlSurfaceRole.dialog => 48.0 * strength,
       HyperControlSurfaceRole.switchThumb => 10.0 * strength,
-      _ => 14.0 * strength,
+      _ => (fixedStyle?.amount ?? 14.0) * strength,
     };
     final fill = switch (role) {
       HyperControlSurfaceRole.navigation => (widget.color ?? tint).withValues(
@@ -118,12 +144,23 @@ class _HyperControlSurfaceState extends State<HyperControlSurface> {
       HyperControlSurfaceRole.selection => (light ? black : white).withValues(
         alpha: 0.1 * (1 - pressed),
       ),
-      HyperControlSurfaceRole.thumb ||
       HyperControlSurfaceRole.switchThumb => (widget.color ?? white).withValues(
+        alpha: (widget.color ?? white).a * (0.92 - 0.72 * pressed),
+      ),
+      HyperControlSurfaceRole.thumb => (widget.color ?? white).withValues(
         alpha: (widget.color ?? white).a * (1 - pressed),
       ),
       HyperControlSurfaceRole.dialog =>
         widget.color ?? tint.withValues(alpha: light ? 0.6 : 0.272),
+      _ =>
+        widget.color ??
+            tint.withValues(
+              alpha: role == HyperControlSurfaceRole.drawer
+                  ? (light ? 0.85 : 0.28)
+                  : role == HyperControlSurfaceRole.panel
+                  ? (light ? 0.6 : 0.272)
+                  : tint.a * 0.4,
+            ),
     };
     final source = HyperGlassSourceScope.maybeOf(context);
     final sources = widget.sources ?? [if (source != null) source];
@@ -136,20 +173,36 @@ class _HyperControlSurfaceState extends State<HyperControlSurface> {
       blur: blur,
       edge: edge,
       amount: amount,
-      dispersion: interactive ? pressed : 0,
+      dispersion: role == HyperControlSurfaceRole.switchThumb && pressed > 0
+          ? 1
+          : interactive
+          ? pressed
+          : 0,
       depth: role == HyperControlSurfaceRole.dialog ? 1 : 0,
       saturation: role == HyperControlSurfaceRole.dialog ? 1.5 : 1,
       brightness: role == HyperControlSurfaceRole.dialog && light ? 0.2 : 0,
-      highlight: role == HyperControlSurfaceRole.button
+      highlight: role == HyperControlSurfaceRole.switchThumb
+          ? 0
+          : role == HyperControlSurfaceRole.button
           ? controlStyle.highlight * 2
-          : strength,
+          : fixedStyle != null ? fixedStyle.highlight * 2 : strength,
       baseColor: theme.tokens.background,
       tintSource: widget.tintSource,
       tint: widget.tint,
       scaleSource: widget.scaleSource,
       sourceScale: widget.sourceScale,
+      compactSampling: role == HyperControlSurfaceRole.switchThumb,
     );
     final shape = BorderRadius.circular(widget.radius);
+    _switchEdgePainter?.disposeMask();
+    _switchEdgePainter = role == HyperControlSurfaceRole.switchThumb
+        ? HyperSwitchEdgePainter(
+            radius: widget.radius,
+            progress: pressed,
+            density: MediaQuery.devicePixelRatioOf(context),
+            shader: _ambientShader,
+          )
+        : null;
     final lift = role == HyperControlSurfaceRole.selection ? pressed : 1.0;
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -158,15 +211,20 @@ class _HyperControlSurfaceState extends State<HyperControlSurface> {
           if (lift > 0)
             BoxShadow(
               color: black.withValues(alpha: (light ? 0.08 : 0.18) * lift),
-              blurRadius: role == HyperControlSurfaceRole.button
-                  ? controlStyle.shadow
-                  : role == HyperControlSurfaceRole.dialog
-                  ? 16
-                  : role == HyperControlSurfaceRole.selection
-                  ? 8
-                  : interactive
-                  ? 4
-                  : 8,
+              offset: role == HyperControlSurfaceRole.switchThumb
+                  ? const Offset(0, 4 / 6)
+                  : Offset.zero,
+              blurRadius:
+                  fixedStyle?.shadow ??
+                  (role == HyperControlSurfaceRole.button
+                      ? controlStyle.shadow
+                      : role == HyperControlSurfaceRole.dialog
+                      ? 16
+                      : role == HyperControlSurfaceRole.selection
+                      ? 8
+                      : interactive
+                      ? 4
+                      : 8),
             ),
         ],
       ),
@@ -175,20 +233,25 @@ class _HyperControlSurfaceState extends State<HyperControlSurface> {
         child: CustomPaint(
           key: _paintKey,
           painter: _painter,
-          foregroundPainter: _ControlEdgePainter(
-            radius: widget.radius,
-            strength: role == HyperControlSurfaceRole.button
-                ? (widget.border == null ? controlStyle.highlight : 0)
-                : interactive
-                ? pressed
-                : 0.5,
-            navigation:
-                role == HyperControlSurfaceRole.navigation ||
-                role == HyperControlSurfaceRole.button,
-            innerRadius: interactive
-                ? (role == HyperControlSurfaceRole.selection ? 8 : 4)
-                : 0,
-          ),
+          foregroundPainter: role == HyperControlSurfaceRole.switchThumb
+              ? _switchEdgePainter
+              : _ControlEdgePainter(
+                  radius: widget.radius,
+                  strength: role == HyperControlSurfaceRole.button
+                      ? (widget.border == null ? controlStyle.highlight : 0)
+                      : interactive
+                      ? pressed
+                      : fixedStyle != null && widget.border != null
+                      ? 0
+                      : fixedStyle?.highlight ?? 0.5,
+                  navigation:
+                      role == HyperControlSurfaceRole.navigation ||
+                      role == HyperControlSurfaceRole.button ||
+                      fixedStyle != null,
+                  innerRadius: interactive
+                      ? (role == HyperControlSurfaceRole.selection ? 8 : 4)
+                      : 0,
+                ),
           child: DecoratedBox(
             position: DecorationPosition.foreground,
             decoration: BoxDecoration(
