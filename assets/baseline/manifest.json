@@ -1,0 +1,401 @@
+{
+  "name": "hyper-ui-design-skill",
+  "baseline_date": "2026-11-02",
+  "source_of_truth": "bundled_resource_bytes",
+  "scope": "portable reference rendering sources, shader, font and interaction baseline; adapt to the target host",
+  "files": [
+    {
+      "platform": "kotlin",
+      "group": "engine",
+      "path": "library/src/main/java/hyper_ui/core/surface/HyperGlassStyle.kt",
+      "sha256": "9a9f8c03727a0f8260324f05c95fe65be84740bd89d3bce007cbc92e5f437806",
+      "bytes": 896
+    },
+    {
+      "platform": "kotlin",
+      "group": "engine",
+      "path": "library/src/main/java/hyper_ui/core/surface/HyperControlSurface.kt",
+      "sha256": "00eb731afecd840d5aa8452c03e2230b7fc8ac522709bddb79f24e5d1169b2b5",
+      "bytes": 8264
+    },
+    {
+      "platform": "kotlin",
+      "group": "engine",
+      "path": "library/src/main/java/hyper_ui/core/surface/HyperGlassSource.kt",
+      "sha256": "265b98ff7abe551940472000b25458f5506bd8319de1d6f3c690b6edd48f6bfa",
+      "bytes": 2559
+    },
+    {
+      "platform": "kotlin",
+      "group": "engine",
+      "path": "library/src/main/java/hyper_ui/core/surface/HyperGlassOptics.kt",
+      "sha256": "186018efac8625c63e0298658e279f0d7c51fbe6f0e9c6939f2d557fd872aa69",
+      "bytes": 2945
+    },
+    {
+      "platform": "kotlin",
+      "group": "engine",
+      "path": "library/src/main/java/hyper_ui/core/surface/HyperGlassShader.android.kt",
+      "sha256": "cf926abb1d7d6feef16134fdd4af9f9810f6d9093088fa360dc43f44b092548a",
+      "bytes": 2491
+    },
+    {
+      "platform": "kotlin",
+      "group": "engine",
+      "path": "library/src/main/java/hyper_ui/core/surface/HyperBackdrop.kt",
+      "sha256": "08ac9944314e90be40d40f1e2376e4511b2fcea4dc04973f596b36d164d36164",
+      "bytes": 1715
+    },
+    {
+      "platform": "kotlin",
+      "group": "engine",
+      "path": "preview/src/commonMain/kotlin/hyper_ui/HyperGlassShaderPreview.kt",
+      "sha256": "9d50445dcfd689c1d88850290f77677bd17c8c81aae50cf3b86bc2daf06fb47b",
+      "bytes": 1940
+    },
+    {
+      "platform": "kotlin",
+      "group": "interaction",
+      "path": "library/src/main/java/hyper_ui/core/interaction/HyperInteraction.kt",
+      "sha256": "6840bf6aab227a2b585f2e10e7eee37dfbe0c6aad5e81866d133390c76f938ba",
+      "bytes": 3307
+    },
+    {
+      "platform": "kotlin",
+      "group": "interaction",
+      "path": "library/src/main/java/hyper_ui/core/interaction/HyperMotionSpec.kt",
+      "sha256": "d3a60208767d7bc0af25664343be97bc2c50dd7ea3d79bdf7c2b74701f7c0c53",
+      "bytes": 717
+    },
+    {
+      "platform": "kotlin",
+      "group": "interaction",
+      "path": "library/src/main/java/hyper_ui/core/interaction/HyperOverlayMotion.kt",
+      "sha256": "40c2af3b4ee3a01c594cd288ec35ff5dd11f7574b12d1a5c7fff801567683791",
+      "bytes": 1271
+    },
+    {
+      "platform": "kotlin",
+      "group": "button",
+      "path": "library/src/main/java/hyper_ui/components/button/HyperButton.kt",
+      "sha256": "02584607aa19c18c3c203563497f04359e39885d557edaec4a867b3ba94cebd0",
+      "bytes": 8700
+    },
+    {
+      "platform": "kotlin",
+      "group": "button",
+      "path": "library/src/main/java/hyper_ui/components/button/HyperButtonSurface.kt",
+      "sha256": "559adeb6ea7e78afa9fbb3aad9ba0b9265fbe602ff9bd22b01a26dedc71b2d04",
+      "bytes": 1162
+    },
+    {
+      "platform": "kotlin",
+      "group": "tabbar",
+      "path": "library/src/main/java/hyper_ui/components/navigation/HyperTabBar.kt",
+      "sha256": "ccaa1fad36eb4a35888ae40a367d1304e8b82d73d57de6055d28a5d3758dd856",
+      "bytes": 12028
+    },
+    {
+      "platform": "kotlin",
+      "group": "tabbar",
+      "path": "library/src/main/java/hyper_ui/components/navigation/HyperTabBarMotion.kt",
+      "sha256": "f3c0a4d5619c090886783f9f7fb2702d7ab68bbbd375d81b655a587c756cad99",
+      "bytes": 4853
+    },
+    {
+      "platform": "kotlin",
+      "group": "slider",
+      "path": "library/src/main/java/hyper_ui/components/progress/HyperSlider.kt",
+      "sha256": "07ee9a2508ce3e8136dfd01b1bb5a8038c12fdb966e89af9836db0cb43126660",
+      "bytes": 16778
+    },
+    {
+      "platform": "kotlin",
+      "group": "selection",
+      "path": "library/src/main/java/hyper_ui/components/selection/HyperSelectionControls.kt",
+      "sha256": "d2c270203e814e7bb0cf90b8b32f5da21a2bb0908044b2feb39c334b37172173",
+      "bytes": 13827
+    },
+    {
+      "platform": "kotlin",
+      "group": "dialog",
+      "path": "library/src/main/java/hyper_ui/components/dialog/HyperDialog.kt",
+      "sha256": "9626b04d6a10af7a55adbe6248aaea19dd52ac436f56128ba860c33ecc4253bb",
+      "bytes": 6996
+    },
+    {
+      "platform": "kotlin",
+      "group": "dialog",
+      "path": "library/src/main/java/hyper_ui/components/dialog/HyperDialogHost.kt",
+      "sha256": "6cca17e0bb6260bafea51c814a1f911d62310b83c063fddeba3064351f19e3ca",
+      "bytes": 2176
+    },
+    {
+      "platform": "kotlin",
+      "group": "theme",
+      "path": "library/src/main/java/hyper_ui/theme/HyperStyle.kt",
+      "sha256": "0f811ce69ddfcd2f79cf8611da5f588e93465285a720b1e1139b54e6969f9757",
+      "bytes": 10293
+    },
+    {
+      "platform": "kotlin",
+      "group": "theme",
+      "path": "library/src/main/java/hyper_ui/theme/HyperSurfaceTokens.kt",
+      "sha256": "23c64901d8872f064e7f2db4d597be0e610293d9e7dd5b06d7b98c04c42e1f15",
+      "bytes": 1666
+    },
+    {
+      "platform": "kotlin",
+      "group": "preview",
+      "path": "preview/src/commonMain/kotlin/hyper_ui/docs/ui/PreviewSceneBackdrop.kt",
+      "sha256": "b4d8846301fa052fc9cd0cf486f8f37a3a6a6591a68e07676fa3485f54f53161",
+      "bytes": 2099
+    },
+    {
+      "platform": "kotlin",
+      "group": "preview",
+      "path": "preview/src/commonMain/kotlin/hyper_ui/docs/ui/ComponentPreviewViewport.kt",
+      "sha256": "c0b4eeceab02d260b9531a5c776712991f2d5b0858f70d1e375b7f72f92b68b9",
+      "bytes": 1932
+    },
+    {
+      "platform": "kotlin",
+      "group": "preview",
+      "path": "preview/src/commonMain/kotlin/hyper_ui/docs/ui/BasicComponentShowcases.kt",
+      "sha256": "5c58eca18ba74a507de1469fdca8ac64eb116e8e33bded3d2e4551a7764f37e2",
+      "bytes": 7180
+    },
+    {
+      "platform": "kotlin",
+      "group": "preview",
+      "path": "preview/src/commonMain/kotlin/hyper_ui/docs/theme/DocsTheme.kt",
+      "sha256": "ce8136dd66658c982108a15beb1a84825d2648aa193688ee57ce91933205afc3",
+      "bytes": 6521
+    },
+    {
+      "platform": "kotlin",
+      "group": "build",
+      "path": "library/gradle/libs.versions.toml",
+      "sha256": "977dee421d7450dd0e844ae26e4ade782e165e49974149b5e1c2bfc73c1a054a",
+      "bytes": 898
+    },
+    {
+      "platform": "kotlin",
+      "group": "build",
+      "path": "library/build.gradle.kts",
+      "sha256": "271d3c8025184f19272310ba70da73af5cb5b6347efdfd15b943e30a005e26cb",
+      "bytes": 1354
+    },
+    {
+      "platform": "kotlin",
+      "group": "build",
+      "path": "preview/build.gradle.kts",
+      "sha256": "ab06b1076932c6cc1cd5a61f54f57bbcb583bca136510045cf40c5affea85a93",
+      "bytes": 6979
+    },
+    {
+      "platform": "flutter",
+      "group": "engine",
+      "path": "ui/lib/src/components/hyper_glass_style.dart",
+      "sha256": "83a73127ca414ea1e7f0cb1d730e977b4af0b3fcc780151ad277b77246fc6bf8",
+      "bytes": 621
+    },
+    {
+      "platform": "flutter",
+      "group": "engine",
+      "path": "ui/lib/src/components/hyper_control_surface.dart",
+      "sha256": "f3bbfbb55b63e89a9caa19dfc331a1539d186aed53f7815d495316fd154936b1",
+      "bytes": 9191
+    },
+    {
+      "platform": "flutter",
+      "group": "engine",
+      "path": "ui/lib/src/components/hyper_glass_source.dart",
+      "sha256": "96ab995a98ce4246509ed1d9b0144ed9d646113366e999d68b5056b751f91c97",
+      "bytes": 4222
+    },
+    {
+      "platform": "flutter",
+      "group": "engine",
+      "path": "ui/lib/src/components/hyper_glass_painter.dart",
+      "sha256": "e607b7e6ecc0d1f4c106ace05b43f74e78e882f9888866507dab4a68927aebea",
+      "bytes": 4468
+    },
+    {
+      "platform": "flutter",
+      "group": "engine",
+      "path": "ui/shaders/hyper_glass.frag",
+      "sha256": "874dc4fae7f3d6ce43431627babee9a4a8a6aaec1e6c241171646dff3dd4293f",
+      "bytes": 2102
+    },
+    {
+      "platform": "flutter",
+      "group": "interaction",
+      "path": "ui/lib/src/components/hyper_pressable.dart",
+      "sha256": "5f7a8e909c575b89075cc9b8f30d75d8150b4d6f2eea16a692580b8bf8f0cdfc",
+      "bytes": 3326
+    },
+    {
+      "platform": "flutter",
+      "group": "interaction",
+      "path": "ui/lib/src/theme/hyper_ui_effects.dart",
+      "sha256": "a5b85ce882c8dac332ab239b5205178ff091ea0c2d36742ca49ce77b686333c9",
+      "bytes": 1498
+    },
+    {
+      "platform": "flutter",
+      "group": "interaction",
+      "path": "ui/lib/src/utils/hyper_spring_motion.dart",
+      "sha256": "32a73e2d13e1f00da3ba5be31bbedfc6fa456194b2a96564272e64a582480150",
+      "bytes": 1798
+    },
+    {
+      "platform": "flutter",
+      "group": "button",
+      "path": "ui/lib/src/components/hyper_button.dart",
+      "sha256": "b76766b197a5e4c75196926a958d88b6a5f7cb631ad66072ffbd70f3ea3950bd",
+      "bytes": 11009
+    },
+    {
+      "platform": "flutter",
+      "group": "button",
+      "path": "ui/lib/src/components/hyper_button_surface.dart",
+      "sha256": "6981cd75c46f82cc1e7a1567965641a3d71197ffdda31dd4ddb666d8edbf33b5",
+      "bytes": 3042
+    },
+    {
+      "platform": "flutter",
+      "group": "tabbar",
+      "path": "ui/lib/src/components/hyper_tab_bar.dart",
+      "sha256": "eb1475eb36ef249545a01f417c7f45ed973f0d6b7c34877f568c466dd4e630cc",
+      "bytes": 18061
+    },
+    {
+      "platform": "flutter",
+      "group": "tabbar",
+      "path": "ui/lib/src/components/hyper_tab_bar_motion.dart",
+      "sha256": "da9df093fb4919ad8ead4bf87eb7794a6ef25ccd24f1ba94d04c46b2c1bf3563",
+      "bytes": 6058
+    },
+    {
+      "platform": "flutter",
+      "group": "selection",
+      "path": "ui/lib/src/components/hyper_selection_controls.dart",
+      "sha256": "da4a2a85189066a6af251bb6a6d64a13f15fa34b801c7496a2ee8ede67bb4db8",
+      "bytes": 21748
+    },
+    {
+      "platform": "flutter",
+      "group": "dialog",
+      "path": "ui/lib/src/components/hyper_feedback.dart",
+      "sha256": "8e4ae9673b23b9267d151d4e72894606724f8e519d8cc8aedaf36216c115ad9f",
+      "bytes": 8410
+    },
+    {
+      "platform": "flutter",
+      "group": "dialog",
+      "path": "ui/lib/src/components/hyper_modal.dart",
+      "sha256": "9650b2eb3f7e4fff197a95f4ef1f998c6f9c102accce984c2a1b2bbbcf92564a",
+      "bytes": 2998
+    },
+    {
+      "platform": "flutter",
+      "group": "theme",
+      "path": "ui/lib/src/theme/hyper_ui_theme.dart",
+      "sha256": "141b8601522236aeed6f1dce2fc7a8cbe981f03a41623abb2044c84ad794b354",
+      "bytes": 5200
+    },
+    {
+      "platform": "flutter",
+      "group": "theme",
+      "path": "ui/lib/src/theme/hyper_ui_theme_tokens.dart",
+      "sha256": "c89c047bb38d43ff07c91e2f101ea293f699a1f3d4d1f8b7422aa396e117b395",
+      "bytes": 5023
+    },
+    {
+      "platform": "flutter",
+      "group": "theme",
+      "path": "ui/lib/src/theme/hyper_surface_theme.dart",
+      "sha256": "3d5f545d2b2d6aaa9c86789a3884bf65fe667853175447ebea97707382927639",
+      "bytes": 3520
+    },
+    {
+      "platform": "flutter",
+      "group": "theme",
+      "path": "ui/lib/src/theme/hyper_palette.dart",
+      "sha256": "05e4c0525bdc335a457be13cb350964c3162521172320b2c07323eb788c1b97c",
+      "bytes": 328
+    },
+    {
+      "platform": "flutter",
+      "group": "theme",
+      "path": "ui/lib/src/theme/hyper_ui_spacing.dart",
+      "sha256": "06c69baeaf6076375145c1db5aa10566a9ebbf8c7d46805e231a8df3482ed3bd",
+      "bytes": 519
+    },
+    {
+      "platform": "flutter",
+      "group": "preview",
+      "path": "preview/lib/src/examples/buttons_example.dart",
+      "sha256": "62e7fa0925bbec2f247c4110a17877aa7973c3e819c7e7044fd1767e69b6e1ca",
+      "bytes": 6260
+    },
+    {
+      "platform": "flutter",
+      "group": "preview",
+      "path": "preview/lib/src/preview_glass_background.dart",
+      "sha256": "905d830ea51705eafc09e15637ac6a3f7f57c29c5ee3015f3c761c267b2e0ab6",
+      "bytes": 1424
+    },
+    {
+      "platform": "flutter",
+      "group": "preview",
+      "path": "preview/lib/src/preview_shell.dart",
+      "sha256": "c64ef8855f920bae5d94dacb8cf27c1f6f2ebbb87281233755154f7a652890d2",
+      "bytes": 5647
+    },
+    {
+      "platform": "flutter",
+      "group": "build",
+      "path": "ui/pubspec.yaml",
+      "sha256": "00778ec74486fd1f42d24cb14e0e62cd0534819913d6f79bbac754fc020a0c09",
+      "bytes": 349
+    },
+    {
+      "platform": "flutter",
+      "group": "build",
+      "path": "preview/pubspec.yaml",
+      "sha256": "3f3be05866f22589a9ec9ce207b467f3e4c74d09e9401a5641983ae71772c300",
+      "bytes": 335
+    },
+    {
+      "platform": "flutter",
+      "group": "build",
+      "path": "preview/pubspec.lock",
+      "sha256": "883bc01145205fd8e90358d71566963fd7e31cf63bdd320d54ee7426f41b0f6d",
+      "bytes": 1975
+    },
+    {
+      "platform": "kotlin",
+      "group": "dialog",
+      "path": "library/src/main/java/hyper_ui/components/popup/HyperFloatingPanel.kt",
+      "sha256": "99a54ef2a1e4f6509a9217e054717099c209dbe4dba31e2782135469ee79d314",
+      "bytes": 7098
+    },
+    {
+      "platform": "kotlin",
+      "group": "font",
+      "path": "preview/src/commonMain/composeResources/font/hyper_ui_preview.ttf",
+      "sha256": "0c244f41f9082524b6ec7061f6e1951f448cc1e7170c7a3ab06fcd47a782a07a",
+      "bytes": 10683212
+    },
+    {
+      "platform": "kotlin",
+      "group": "preview",
+      "path": "preview/src/commonMain/kotlin/hyper_ui/docs/theme/DocsTypography.kt",
+      "sha256": "263ea7b3a414093ee9d861ee0ff0db64323fe1fa8fb9ede7d43a785a488b3513",
+      "bytes": 1979
+    }
+  ],
+  "version": "1.0.0"
+}

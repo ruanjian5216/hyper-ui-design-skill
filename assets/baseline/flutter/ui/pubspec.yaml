@@ -1,0 +1,18 @@
+name: flutter_hyper_ui
+description: Hyper mobile UI components with soft glass surfaces and adaptive themes.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.8.0 <4.0.0'
+  flutter: '>=3.32.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  lucide_icons_flutter: ^3.1.20
+
+
+flutter:
+  shaders:
+    - shaders/hyper_glass.frag

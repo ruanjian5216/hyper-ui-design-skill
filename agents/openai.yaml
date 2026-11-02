@@ -1,0 +1,4 @@
+interface:
+  display_name: "HyperUI 当前样式与动效"
+  short_description: "按源码基线精确复用 Kotlin 与 Flutter 的玻璃样式和交互动效"
+  default_prompt: "使用 $hyper-ui-design-skill，按附带源码基线复现当前 HyperUI 的样式与动效，保留原尺寸、布局和交互语义。"

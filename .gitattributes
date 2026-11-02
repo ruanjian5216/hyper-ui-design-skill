@@ -1,0 +1,3 @@
+* text=auto eol=lf
+# Frozen resources must keep the exact bytes recorded in manifest.json.
+assets/baseline/** -text whitespace=cr-at-eol,-blank-at-eof

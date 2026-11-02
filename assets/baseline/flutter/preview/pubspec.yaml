@@ -1,0 +1,16 @@
+name: flutter_hyper_ui_preview
+description: Embedded multi-view Flutter Web preview for Flutter Hyper UI examples.
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.8.0 <4.0.0'
+  flutter: '>=3.32.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_hyper_ui:
+    path: ../ui
+  lucide_icons_flutter: ^3.1.20
+
